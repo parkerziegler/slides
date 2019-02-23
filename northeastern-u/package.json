@@ -1,0 +1,12 @@
+{
+  "name": "northeastern-u",
+  "version": "0.1.0",
+  "description": "A presentation about my path to programming for students at Northeastern University.",
+  "main": "deck.mdx",
+  "author": "Parker Ziegler",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "start": "mdx-deck deck.mdx"
+  }
+}

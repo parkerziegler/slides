@@ -1,0 +1,12 @@
+{
+  "name": "reason-urql",
+  "version": "0.1.0",
+  "description": "An mdx deck presentation on the `reason-urql` library.",
+  "main": "deck.mdx",
+  "author": "Parker Ziegler",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "start": "mdx-deck deck.mdx"
+  }
+}

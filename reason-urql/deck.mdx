@@ -1,0 +1,610 @@
+export { default as theme } from './theme'
+import GitHub from './components/GitHub'
+
+## `reason-urql`
+### GraphQL in the Age of Reason
+
+<p>Or, What Ken Wheeler Taught Me About Open Source</p>
+
+<GitHub />
+
+```notes
+- Thank Zach for inviting me to speak and gathering the community.
+- Going to be talking about my first OSS library `reason-urql`, a GraphQL client for ReasonReact.
+```
+
+---
+![](https://media.giphy.com/media/h2OLfcSKKthRK/giphy.gif)
+
+### Don't worry, it's all G-rated.
+
+```notes
+So I know what you're probably thinking.
+
+- A Ken Wheeler inspired talk?
+- Don't worry, it's very G-rated.
+- But before diving in, I should tell you a bit about myself and what I'm doing up here tonight.
+```
+
+---
+import Formidable from './components/Formidable'
+
+<Formidable />
+
+```notes
+- Software Engineer at Formidable, where I build apps with React. We specialize in building applications in the extended JavaScript ecosystem, esp. with React, React Native, Node, GraphQL.
+- At Formidable, it's mostly me and Phil who evangelize Reason. We're looking at how we can be more involved in the community and use it more in production applications.
+```
+
+---
+![](/images/reason-basics.png)
+
+```notes
+- I really got interested in Reason in the Spring after we had an internal discussion at Formidable about technologies we thought we should invest in.
+- I made this little repo, `reason-basics` that seems to have helped newcomers get going with the language.
+- I want to emphasize how important it is to document our learning in the community and create resources that can help people just joining the community. Reason is great at this.
+- To be a great community we need to be great teachers. Place emphasis on different learning styles.
+```
+
+---
+### So let's talk about where we're headed tonight.
+
+- What is `reason-urql`?
+- GraphQL and `urql`
+- Porting to Reason
+- Demo
+- The Testing Story 😬
+
+```notes
+So now that you know a bit about me, let's chat about where we're headed tonight.
+
+- We'll first chat about what `reason-urql` actually is.
+- To help explain that, I'll give a brief overview of GraphQL, and talk about what benefits `urql` adds to the GraphQL ecosystem.
+- We'll then chat about writing BuckleScript bindings and how I was able to bind some of the low-level parts of the API.
+- I'll finish by talking about how Reason helped me augment the `urql` API and enhance the language ergonomics.
+- Along the way I'll show off parts of the API and chat a bit about testing.
+```
+
+---
+### So what is `reason-urql`?
+![](/images/what-is.png)
+
+```notes
+Alright, so what it `reason-urql`?
+
+- At the top-level, these are bindings to `urql` such that we can use `urql`'s API in Reason.
+```
+
+---
+If these are _bindings_, why not name it `bs-urql`?
+
+```notes
+And so you might be thinking to yourself:
+
+> If these are _bindings_, why not name it `bs-urql`?
+
+Well because the point of this library is to actually extend the possibilities of `urql` through the power of Reason. It's intended as a Reason-first library and is designed to support semantic Reason code to the extent possible.
+
+- So how did this come to be?
+```
+
+---
+![reason-urql pitch](/images/reason-urql-pitch.png)
+
+```notes
+Well like all good Formidable open source, it started by paying homage to Ken Wheeler.
+
+- I first pitched the idea to Ken back in May when I was coming up on OSS time.
+- Went through a whole formal proposal, Ken replied, "Hell fuckin' yeah."
+```
+
+---
+> "Don't let your dreams be memes."
+
+– Ken Wheeler
+
+```notes
+He literally said to me, "Don't let your dreams be memes."
+
+- After he agreed I was like, "Oh heck, how do I do this?"
+- I was really interested in Reason, but I didn't have much of a background.
+```
+
+---
+![Reason Meme](/images/reason-meme.jpg)
+
+```notes
+I'll admit at the time, my dreams were pretty much this meme.
+
+- I really bought into the hype of Reason.
+```
+
+---
+import { Split } from 'mdx-deck/layouts'
+import Steve from './components/Steve'
+import GraphQLReact from './components/GraphQLReact';
+
+export default Split
+
+<Steve src="https://media.giphy.com/media/KWn5YHuCzP3FK/giphy.gif" />
+
+<GraphQLReact />
+
+```notes
+But I was actually pretty uncertain of how to get started. So I dove into something I felt a bit more comfortable with – GraphQL and React.
+```
+
+---
+### GraphQL
+
+- Query language for APIs
+- Queries, Mutations, Subscriptions
+- Robust type system
+
+```notes
+For those of you unfamiliar with GraphQL, let's do a TL;DR.
+
+- It is a query language for APIs. Replaces REST – rather than having multiple endpoints from which you request resources, there's a single endpoint.
+- Your schema defines the queries, mutations, and subscriptions at that endpoint, and you write resolver functions to specify how one of these types gets translated into an interaction with a remote resource (maybe a DB, maybe another endpoint, etc.)
+- It's backed by a really robust type system – great for Reason!
+- Let's take a brief look at the full lifecycle of a GraphQL query.
+```
+
+---
+### 1. Write a Query.
+
+```graphql
+const query = `query dogs {
+  dogs {
+    name
+    key
+    breed
+    likes
+  }
+}`;
+```
+
+```notes
+We start off by writing a query. A query is basically a description of the data we want back from our API.
+
+- The awesome thing about GraphQL is that it allows us to request _only_ the data we need.
+- Can add and remove fields from queries and mutations as needed. Helps to address issues with overfetching in REST APIs.
+```
+
+---
+### 2. Send the query to our API.
+
+```javascript
+fetch('http://localhost:3000', {
+  method: 'POST',
+  headers: {
+    "Content-Type": "application/json; charset=utf-8"
+  },
+  body: JSON.stringify(query)
+});
+```
+
+```notes
+Next we send our query off to our API.
+
+- It's important to note that you can send your data in ways that you're used to. You don't need a GraphQL client.
+- Pop that puppy in a `fetch` and you're off.
+```
+
+---
+### 3. Schema lexing, parsing, validation, etc.
+
+```graphql
+const typeDefs = `
+  type Query {
+    dogs: [Dog]
+  }
+  type Dog {
+    key: String!
+    name: String!
+    breed: String!
+    color: String!
+    imageUrl: String!
+    description: String!
+    likes: Int!
+  }
+`;
+```
+
+```notes
+Now, on the server side, your GraphQL query handles lexing, parsing, and validating the query against your schema. Here's an exampe schema that defines a single query, dogs, which returns an array of items of type Dog.
+```
+
+---
+### 4. Execute resolver.
+
+```graphql
+const resolvers = () => ({
+  Query: {
+    dogs: () => // interaction with DB that returns an array of dogs,
+  }
+});
+```
+
+```notes
+Finally, your resolvers take over.
+
+- Resolvers basically say, given this query or mutation, perform this function to get the data requested.
+- So now that we know about the lifecycle of a GraphQL query, you may be wondering...
+```
+
+---
+So how does `urql` fit in?
+![](/images/urql-github.png)
+
+```notes
+So how does `urql` fit into this. `urql` is a GraphQL client for React. Rather than you manually setting up your `fetch` requests, the client handles making requests for you and supplies data, loading, and error states to a render prop.
+
+- It handles step 2 of the process outlined above.
+- Has a caching mechanism under the hood to prevent unnecessary network requests.
+- Aims to be a lighterweight, simpler alternative to Apollo and Relay.
+- Let's take a look at how it works.
+```
+
+---
+### Create a `Client` and `Provider`.
+```js
+const client = new Client({
+  url: 'http://localhost:3000/graphql',
+});
+
+export const App = () => (
+  <Provider client={client}>
+    <Home />
+  </Provider>
+);
+```
+
+```notes
+- Start off by making creating a client instance.
+- Wrap your application startup in a Provider that accepts the client as a prop.
+```
+
+---
+### Write your GraphQL query (or mutation).
+```js
+const TodosQuery = `
+  query todos {
+    todo {
+      title
+      date
+      completed
+    }
+  }
+`;
+```
+
+```notes
+- Write your GraphQL query (or mutation).
+```
+
+---
+### Render UI with `Connect` (or `ConnectHoC`).
+```js
+const Home = () => (
+  <Connect
+    query={query(TodosQuery)}
+    children={({ loaded, data }) => (
+      !loaded ? (
+        <Loading />
+       ) : (
+         <TodoList todos={data.todos} />
+       )
+    )}
+  />
+);
+```
+
+```notes
+- Wire it up to `Connect` or `ConnectHoC`.
+- Takes a render prop called `children` that provides access to information about data, errors, and the cache.
+```
+
+---
+import { Appear } from 'mdx-deck'
+
+### That's pretty sweet! But how does this work in Reason?
+
+`reason-urql` takes 2 approaches.
+
+<Appear>
+  <p><strong>Bind</strong> the API with BuckleScript annotations.</p>
+  <p><strong>Extend</strong> the API to improve ergonomics.</p>
+</Appear>
+
+---
+### Create a `Client` and `Provider`.
+```reason
+let client = Client.make(~url="https://localhost:3000/graphql", ());
+
+let make = (_children) => {
+  ...component,
+  render: _self => <Provider client ><Home /></Provider>
+};
+```
+
+```notes
+So to see the basic use case, let's rewrite our previous example using `reason-urql`.
+
+- We start by creating a Client and wrapping our app startup in Provider.
+```
+
+---
+### Write your GraphQL query (or mutation).
+```reason
+module TodosQuery = [%graphql {|
+  query todos {
+    todo {
+      title
+      date
+      completed
+    }
+  }
+|}];
+```
+
+```notes
+- We write our query – notice that it's a `module` and has a `graphql_ppx` annotation. We'll come back to what that is and why it's important.
+```
+
+---
+### Render UI with `Connect`.
+```reason
+let make = (_children) => {
+  ...component,
+  render: _self => {
+    <Connect
+      query=Query.query(TodosQuery.make())
+      render={result =>
+        switch (result##response) {
+          | Loading => <Loading />
+          | Data(todos) => <TodoList todos />
+        }
+      }
+    />
+  }
+}
+```
+
+```notes
+And we render our UI, passing in the query!
+
+- Notice here that `result##response` is actually a variant. More on that as well coming up.
+```
+
+---
+### So this doesn't look all that different!
+
+<Appear>
+  <p><i>But then what are the benefits?</i></p>
+  <p><strong>What does Reason give us that JS doesn't?</strong></p>
+</Appear>
+
+```notes
+So that's pretty neat – we have a full implementation of `urql` working in Reason! But you may be asking yourself, what are the actual benefits we get from using Reason? Moreover, what does Reason really get us here that JS doesn't?
+```
+
+---
+### `graphql_ppx` Integration
+Schema and type validation at compile-time!
+
+![](/images/graphql_ppx.gif)
+
+```notes
+This is probably my favorite part of `reason-urql`. We bake in support for `graphql_ppx`, which is a PPX rewriter for GraphQL queries in Reason.
+
+- It actually rewrites the compiled JavaScript to efficiently check your GraphQL queries at compile time and provide runtime response validation.
+- If you attempt to access a field that is optional without handling the null or undefined case (i.e. by wrapping in an option), or try to use a field without proper type coercion, you'll get errors from the compiler.
+```
+
+---
+### The `response` variant
+
+```reason
+render={(result) =>
+  switch (result##response) {
+    | Loading => // render loading UI
+    | Data(data) => // render data UI
+    | Error(error) => // render error UI
+  }
+}
+```
+
+```notes
+Another big extension to the API is altering the response from `urql` provided in the render prop.
+
+- Under the hood we expose a `response` value on the render prop, in addition to all of the fields that `urql`'s render prop typically provides.
+- Response is a variant taking Loading, Data, and Error constructors.
+```
+
+---
+### Type-safe `fetch` options
+
+```reason
+let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9";
+
+let fetchOptions = Client.FetchFn(() => {
+  Fetch.RequestInit.make(
+    ~method_=Post,
+    ~headers=Fetch.HeadersInit.make({
+      "Authorization": {j|Bearer $token|j}
+    }),
+    (),
+  );
+});
+```
+
+```notes
+`reason-urql` also allows users to inject fetch options, using `bs-fetch` under the hood to ensure proper typing of fetch arguments.
+
+- It's also a variant, allowing users to pass either an instance of `Fetch.RequestInit` or a function that returns an instance of `Fetch.RequestInit`.
+```
+
+---
+### So what about mutations?
+
+```reason
+/* Define a mutation module. */
+module LikeDog = [%graphql {|
+  mutation likeDog($key: ID!) {
+    likeDog(key: $key) {
+      name
+      key
+      breed
+      likes
+    }
+  }
+|}];
+```
+
+```notes
+So now that we've seen a simple query example, let's check out mutations.
+
+- We get the same ppx rewriting support with mutations!
+```
+
+---
+### Create a mutation map.
+
+```reason
+/* Functors ftw! */
+module LikeDogMutation = Mutation.Make(LikeDog);
+
+let mutationMap = Js.Dict.empty();
+Js.Dict.set(
+  mutationMap,
+  "likeDog",
+  LikeDogMutation.mutation
+);
+```
+
+```notes
+`urql` does an interesting thing with mutations. It requires us to pass mutations in an object.
+
+- This is a good opportunity to use the `Js.Dict` API.
+- `urql` then actually spreads these mutations on to the argument passed to the render prop.
+```
+
+---
+### Uh did you say, spreads the `mutations`?
+
+![](/images/props-spread.png)
+
+```notes
+And you, like me, may be thinking of this piece of the ReasonReact docs that talks about props spreading not being supported in Reason.
+
+- `urql` achieves this using intersection types in TS. We don't really have those in Reason.
+- So what are we to do?
+```
+
+---
+### Let `Connect` know about it.
+
+```reason
+[@bs.send]
+external likeDog:
+  (
+    Connect.renderArgs(GetAllDogs.t, 'queryData, 'store),
+    {. "key": string}
+  ) =>
+  unit =
+  "";
+```
+
+```notes
+Just let `Connect` know about it.
+
+- This is where the beauty of BuckleScript externals comes in.
+- We can get by letting Reason know that there is an additional property, called `likeDog`, on our render prop argument.
+```
+
+---
+### Use the `mutation`.
+
+```reason
+<Connect
+  mutation=mutationMap
+  render={result => {
+    <button onClick={(_e) => result->likeDog({ "key": "12345" })}>
+      Mutate!
+    </button>
+  }}
+/>
+```
+
+```notes
+Now we can actually go about using it!
+
+- Wire up the mutation to something like an `onClick` handler and you're good to go!
+- So some of you may be like, cool Parker, that's rad but...
+```
+
+---
+### Uh, I don't use React.
+
+<Steve src='https://media.giphy.com/media/4HtEiJhaEKHAc/giphy.gif' />
+
+```notes
+I don't use React.
+
+- _Does `reason-urql` have a place for me?_
+```
+
+---
+### `executeQuery` and `executeMutation`
+
+- Execute one-off queries and mutations.
+- Take advantage of `urql`'s caching!
+
+---
+```reason
+Client.executeQuery(~client, ~query=queryAllDogs, ~skipCache=false)
+  |> Js.Promise.then_(value => {
+      Js.Promise.resolve(value##data##dogs);
+    })
+  |> Js.Promise.catch(err => {
+      Js.Promise.resolve(err);
+    });
+```
+
+---
+### Enough chit chat, let's see the demo!
+
+---
+### So what's the testing story?
+
+```notes
+So you might be asking yourself, what's the testing story?
+```
+
+---
+### It's gettin' there.
+
+---
+![](/images/bs-jest.png)
+
+```notes
+We use `bs-jest` under the hood to do most of our unit testing.
+
+- Testing JS bindings is kind of a wonky process.
+- You're in this weird liminal space of testing JS data structures in Reason, and it's not always an easy one-to-one mapping.
+```
+
+---
+```reason
+test("should return a valid urql mutation string", () =>
+  Expect.(
+    expect(mutation->Mutation.queryGet) |> toEqual(expectedMutation)
+  )
+);
+```
+
+---
+### 🎉 Thank you! 🎉
+
+_Questions?_
