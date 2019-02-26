@@ -6,6 +6,7 @@ export default {
     fontSize: "50px"
   },
   h3: {
-    fontSize: "36px"
+    fontSize: "36px",
+    textTransform: "none"
   }
 };

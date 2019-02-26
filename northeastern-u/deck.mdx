@@ -48,3 +48,181 @@ import { Appear } from "mdx-deck";
 - It's about altering the structures of who has power to create knowledge in our society (though we'll get to how it also reproduces those structures later).
 - It's about making community in a world that desperatly needs it.
 ```
+
+---
+
+# So, how do you actually do it?
+
+### What does contributing to open source involve?
+
+### What makes good open source?
+
+```notes
+- With all this said, how do you actually "do" open source?
+- What does contributing look like?
+- What makes good open source? How can we be good community members?
+```
+
+---
+
+import { Image } from "mdx-deck";
+
+<Image src="./images/mdx-deck-pr.png" />
+
+```notes
+- You _don't_ need to know everything about a library to start contributing.
+- Documentation is a great way to get going, esp. typos.
+```
+
+---
+
+<Image src="./images/reason-basics.png" />
+
+```notes
+- Creating community resources can be super helpful.
+- We often don't think that our small discoveries are helpful or matter to other folks,
+but they do!
+```
+
+---
+
+<Image src="./images/til.png" />
+
+```notes
+- One of my favorite projects on GitHub is called TIL by Josh Branchaud.
+- It's a small collection of things he's learning on a daily basis.
+- Again, your research and learning are instrumental to other people's growth - so share it!
+```
+
+---
+
+<Image src="./images/wonka-pr.png" />
+
+```notes
+- Adding tests!
+- OSS maintainers don't always have the time to do these things, and they really appreciate
+when folks help them out!
+```
+
+---
+
+<Image src="./images/rlr-thanks.png" />
+
+```notes
+- Even just saying thanks or sharing your story of how an OSS project helped you can be super valuable.
+- This is the kind of thing that makes OSS worth it for maintainers. Let's all be good community members.
+```
+
+---
+
+# Let's make something together.
+
+### Like, right now.
+
+```notes
+- Alright, so now that we've talked about doing open source, let's actually do some together, right now.
+```
+
+---
+
+<div>
+  <h2 style={{ textAlign: "left" }}>Collatz Conjecture</h2>
+  <ul>
+    <Appear>
+      <li style={{ textAlign: "left" }}>
+        Take any positive integer <i>n</i>
+      </li>
+      <li style={{ textAlign: "left" }}>If even, divide by 2</li>
+      <li style={{ textAlign: "left" }}>If odd, multiply by 3 and add 1</li>
+      <li style={{ textAlign: "left" }}>Eventually, you'll arrive at 1</li>
+    </Appear>
+  </ul>
+</div>
+
+```notes
+- We're going to be working on a problem called the Collatz conjecture.
+- It's a pretty simple conjecture – start with any positive integer n.
+- If n is even, divide n by 2.
+- If n is odd, multiply n by 3 and add 1.
+- Eventually, all numbers will converge to 1.
+```
+
+---
+
+### But how many calculations will that take?
+
+### How does it vary with n?
+
+```notes
+- What we're going to graph is the number of calculations it takes for n to arrive at 1.
+- We'll be using an open source project from Formidable called Victory, which allows us to do all sorts of cool data visualization using a JavaScript framework called React.
+```
+
+---
+
+### Let's write the algorithm first!
+
+```notes
+function collatz(n, count) {
+  if (n === 1) {
+    return count;
+  }
+
+  if (n % 2 === 0) {
+    return collatz(n / 2, count + 1);
+  } else {
+    return collatz(3 * n + 1, count + 1);
+  }
+}
+```
+
+---
+
+### Let's generate the data!
+
+```notes
+import colltaz from "./collatz";
+
+- iterate over the data
+function generateData() {
+  const data = [];
+  for (let i = 1; i <= 1000; i++) {
+    const count = collatz(i, 0);
+    data.push({ x: i, y: count });
+  }
+
+  return data;
+}
+```
+
+---
+
+### Let's display the data!
+
+```notes
+import { VictoryChart, VictoryScatter } from "victory";
+
+<VictoryChart
+  style={{ parent: { height: 500 } }}
+  domain={{ x: [0, 1000], y: [0, 200] }}
+>
+  <VictoryScatter data={generateData()} />
+</VictoryChart>
+```
+
+---
+
+### Let's highligt some visual differences!
+
+```notes
+<VictoryChart
+  style={{ parent: { height: 500 } }}
+  domain={{ x: [0, 1000], y: [0, 200] }}
+>
+  <VictoryScatter
+    data={generateData()}
+    style={{
+      data: { fill: (datum) => datum.y > 100 ? "#ff9c0d" : "#7b16ff" }
+    }} />
+</VictoryChart>
+```
