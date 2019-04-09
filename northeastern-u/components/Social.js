@@ -20,7 +20,7 @@ const StyledContainer = styled.div`
 const Social = () => (
   <StyledContainer>
     <div>
-      <img src="../images/GitHub-Mark-Light-120px-plus.png" />
+      <img src="../images/GitHub-Mark-120px-plus.png" />
       <code>parkerziegler</code>
     </div>
     <div>

@@ -6,19 +6,38 @@ import Social from "./components/Social";
 <Social />
 
 ```notes
-- Hey folks, my name is Parker. I'm a software engineer at Formidable and I _luv_ open source.
-- It's been a really big part of my career and my identity as a software engineer, so I thought it would be a great thing to talk about today. It's also part of what makes Formidable a real home for me.
-- But I do want to start by saying...
+- Hey folks, my name is Parker and I'm a software engineer at Formidable.
+- The title of my talk today is "Open Source and You (and Me)".
+- When I began writing this talk I knew I wanted to chat about open source, because it's been such a core part of my learning and growing experience as a developer. While I say I am self taught, I actually had an astonishing number of incredible teachers online in the form of the open source community.
+- And you know, I was thinkning about how to convey that experience in a talk and I thought, well first I need some some sort of catchy, kind of haughty, just-vague-enough-to-be-interesting title.
 ```
 
 ---
 
-# This talk is about all of us.
+<img src="./images/dumbledore.jpg" height={400} />
 
 ```notes
-- This talk is about all of us.
-- I know that sounds kind of haughty and vague, probably just what you want in an academic setting.
-- But I think what I'm getting at is that when I think about open source, I think about community.
+- I imagined being something like a pensive, older Dumbledore, speaking in lots of platitudes and making grand generalizations. Leaving some piece of wistful wisdom hanging about.
+```
+
+---
+
+<img src="./images/ron.jpg" height={500} />
+
+```notes
+- But full disclosure, I'm probably more like our friend Ron here.
+- The reflections I want to share with you about open source are mostly based on my experience, but I hope they can offer some degree of insight into how to get started with doing it in real life.
+- And like Ron, I want to acknowledge that my experience in this community is born out of a lot of privilege, and that not everyone shares the same advantages I do in being involved with open source.
+- So with all of that I said...
+```
+
+---
+
+# I believe open source is transformative.
+
+```notes
+- I truly, truly believe that open source is a transformative force in the world.
+- Open source, for me, epitomizes the best of what digital communities can create.
 ```
 
 ---
@@ -27,16 +46,18 @@ import { Appear } from "mdx-deck";
 
 <ul>
   <Appear>
-    <li style={{ textAlign: "left" }}>Knowledge creation.</li>
-    <li style={{ textAlign: "left" }}>Transparency.</li>
-    <li style={{ textAlign: "left" }}>Transformative learning.</li>
+    <li style={{ textAlign: "left", fontSize: "40px" }}>Knowledge creation.</li>
+    <li style={{ textAlign: "left", fontSize: "40px" }}>Transparency.</li>
+    <li style={{ textAlign: "left", fontSize: "40px" }}>
+      Transcendant Learning.
+    </li>
   </Appear>
 </ul>
 
 ```notes
-- I think about knowledge creation. The capacity for a lot of people with different perspectives to come together and create something profound and abstract.
-- I think about transparency. This knowledge isn't hidden behind paywalls, guarded in academic journals, or locked down by corporate entities.
-- I think about the possibilities for transformative learning and mastery. Open source allows for slow, incremental progress. You can contribute in ways that are small and ways that are seismic, and the process of learning can trickle through all of that.
+- First and foremost, I think open source has created an entirely new paradigm for knowledge creation. It's beautiful to think of contributors shaping a piece of software from around the world, all adding in little pieces of nuance. And in that effort, people with a lot of experience as well as newcomers have the opportunity to be heard.
+- Moreover, the process is transparent. This creation of knowlegde isn't hidden behind paywalls, guarded in academic journals, or locked down by corporate entities. And maintainers are often forthright about the direction a project is going.
+- Open source is also an incredible place to learn. One of my goals as an engineer is to become a truly dedicated reader of code, to master code as text. There's been no way for me to do that better than by reading and working with open source.
 ```
 
 ---
@@ -44,14 +65,13 @@ import { Appear } from "mdx-deck";
 # Open source is about more than code.
 
 ```notes
-- I think it's about challenging our epistemologies and our myths.
-- It's about altering the structures of who has power to create knowledge in our society (though we'll get to how it also reproduces those structures later).
-- It's about making community in a world that desperatly needs it.
+- Open source is also about more than code.
+- I think it challenges a lot of the conventions we have around how we make knowledge – around the value judgments we place on certain ideas.
+- Because of this, I also think open source has the capacity to change some of the power structures around how we make knowledge. But that has thus far gone largely unrealized.
+- At its core, It's about making community in a world that desperatly needs it.
 ```
 
 ---
-
-# So, how do you actually do it?
 
 ### What does contributing to open source involve?
 
@@ -160,7 +180,7 @@ when folks help them out!
 
 ---
 
-### Let's write the algorithm first!
+## 1. Let's write the algorithm.
 
 ```notes
 function collatz(n, count) {
@@ -178,7 +198,7 @@ function collatz(n, count) {
 
 ---
 
-### Let's generate the data!
+## 2. Let's generate the data.
 
 ```notes
 import colltaz from "./collatz";
@@ -197,7 +217,7 @@ function generateData() {
 
 ---
 
-### Let's display the data!
+## 3. Let's display the data.
 
 ```notes
 import { VictoryChart, VictoryScatter } from "victory";
@@ -212,7 +232,7 @@ import { VictoryChart, VictoryScatter } from "victory";
 
 ---
 
-### Let's highligt some visual differences!
+## 4. Let's highligt some visual differences.
 
 ```notes
 <VictoryChart
@@ -226,3 +246,11 @@ import { VictoryChart, VictoryScatter } from "victory";
     }} />
 </VictoryChart>
 ```
+
+---
+
+## This isn't open source....
+
+<Appear>
+  <h2>Yet.</h2>
+</Appear>
