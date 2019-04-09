@@ -10,7 +10,8 @@
     "reason-urql",
     "northeastern-u",
     "images",
-    "components"
+    "components",
+    "cypress"
   ],
   "devDependencies": {
     "mdx-deck": "^1.10.0"

@@ -1,0 +1,245 @@
+export { default as theme } from "./theme";
+import Title from "./components/Title.js";
+
+# End to End Testing with
+
+<img src="../images/cypress.png" style={{ height: 100, marginBottom: 50 }} />
+
+<Title />
+
+```notes
+- Hey demo day crowd, how's everyone doing?
+- So I'm here to talk today about Cypress, and more specifically about some of the neat tricks I've uncovered to get a really robust end-to-end testing setup working.
+- But some of you may be wondering, what even is Cypress?
+```
+
+---
+
+<div
+  style={{
+    height: "100vh",
+    width: "100vw",
+    background: "#99b3cc",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center"
+  }}
+>
+  <img src="../images/cyprus.png" />
+</div>
+
+```notes
+- Cyprus is an island nation in the Eastern Mediterranean Sea.
+- The earliest known human activity on the island dates back to the 10th millenium B.C.
+- Archaeological remains uncovered there reveal that Cyprus is home to some of the oldest water wells in the world.
+- While the etymology of the island's name is unknown, many believe it is derived from the Greek kypárissos, the word for the cypress tree.
+```
+
+---
+
+![](https://emoji.slack-edge.com/T02913TEC/dadparrot/eee3764d6615700d.gif)
+
+`:dadparrot:`
+
+```notes
+- Alright, sorry I just had to.
+- So Cypress is actually a testing framework for modern web applications.
+- It allows you to test across the whole spectrum of tests, but really shines for end to end tests.
+```
+
+---
+
+<div style={{ height: "100vh", width: "100vw", background: "#222" }}>
+  <img src="../images/CypressSample.gif" style={{ width: "100vw" }} />
+</div>
+
+```notes
+- You can run tests interactively in a Chrome browser or headlessly in Electron.
+- It has some really killer features like time traveling, automated retry of operations, debuggability in Chrome dev tools, and auto-generation of screenshots and videos of test runs.
+```
+
+---
+
+import { Appear } from "mdx-deck";
+
+### We won't cover all of this today.
+
+<ul>
+  <Appear>
+    <li style={{ textAlign: "left" }}>Dealing with an Asynchronous DOM</li>
+    <li style={{ textAlign: "left" }}>Custom Commands</li>
+    <li style={{ textAlign: "left" }}>Authentication</li>
+  </Appear>
+</ul>
+
+```notes
+- We won't cover all of this today.
+- Instead, I want to just give a quick taste of how to deal with three major topics which I think are interesting in Cypress.
+- These are dealing with an asynchronous DOM, writing custom commands, and how to handle auth.
+```
+
+---
+
+> "The DOM is unstable."
+
+\- Cypress Docs
+
+```notes
+- So first things first, an asynchronous DOM. We're writing React these days and you better believe that our DOM isn't always in a stable state.
+- React has to reconcile DOM updates as our application changes.
+- Users can tell when they should and shouldn't interact with the DOM b/c of things like loading indicators.
+- But Cypress is going to immediately try to start operating on DOM nodes once it receives the onload event from your app (but not necessarily before React has finished rendering).
+```
+
+---
+
+How do we guarantee that the DOM is in a stable state?
+
+```notes
+- So, how do we guarantee the DOM is in a more or less stable state before we begin messing with it?
+```
+
+---
+
+## A combination of
+
+<ul>
+  <Appear>
+    <li style={{ textAlign: "left" }}>
+      <code>cy.server</code> - create a mock server to intercept network
+      traffic.
+    </li>
+    <li style={{ textAlign: "left" }}>
+      <code>cy.route & cy.as</code> - setup a listener on an endpoint, with an
+      alias.
+    </li>
+    <li style={{ textAlign: "left" }}>
+      cy.wait - wait until this endpoint has responded to begin assertions.
+    </li>
+  </Appear>
+</ul>
+
+```notes
+- Well Cypress has a really nice workflow for this, involving a few APIs.
+- The first is `cy.server`. This allows you to create a mock server to intercept your XHR calls.
+- Once this is setup, you can listen for different endpoints in your application using `cy.route`.
+- Think of this as a spy on network requests.
+- You can also alias this in your Cypress call to make it easy to reference.
+- The last step is then to use `cy.wait`.
+- This allows you to wait until your endpoint has responded to start making assertions.
+- Let's look at a bare minimum example.
+```
+
+---
+
+import { Code } from "mdx-deck";
+
+<div
+  style={{
+    height: "100vh",
+    width: "100vw",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center"
+  }}
+>
+  <img src="../images/cywait.svg" style={{ width: "100%" }} />
+</div>
+
+```notes
+- So this is pretty darn simple.
+- We're just setting up `cy.server` so we can intercept calls to `/api/order`.
+- We alias that route to `orderBook`.
+- And then we can wait for that request to complete before we begin our assertions.
+- In effect, we use our network traffic as a proxy to say that the DOM has settled somewhat and that React has likely gone through its first reconciliation of mounting DOM nodes.
+- This becomes really useful if you need to wait on API requests in response to some action in your test.
+- Also reduces test flake across environments where your app may run at different speeds due to hardware and RAM.
+```
+
+---
+
+### We might want to abstract a lot of that logic away, yeah?
+
+<Appear>
+  <h1>Custom Commands</h1>
+</Appear>
+
+```notes
+- So you can imagine we might want to reuse this pattern quite a bit in our code, how would we do that?
+- Well, Cypress allows us to write custom commands that we can then call in our code.
+- Let's take a look at one that we use on a lot on Tagomi.
+```
+
+---
+
+<div
+  style={{
+    height: "100vh",
+    width: "100vw",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center"
+  }}
+>
+  <img src="../images/visitAndLoad.svg" style={{ height: "100%" }} />
+</div>
+
+```notes
+- So the idea behind this custom command, `visitAndLoad`, is that we can supply an endpoint or array of endpoints that we want to listen to, and wait for those endpoints to respond before starting our tests.
+- All you have to do is register the custom command with Cypress, and then you can call it like any other part of the API.
+- This works because so much of our data fetching in React happens after initial mount, so you can be pretty confident that the DOM is stable by the time your spied requests have completed.
+```
+
+---
+
+![](/images/auth.jpg)
+
+```notes
+- Alright, so let's finish by talking about the elephant in the room – authentication.
+```
+
+---
+
+### Authentication is Always Hard.
+
+<ul>
+  <Appear>
+    <li style={{ textAlign: "left" }}>
+      Don't use your app's login page to sign in.
+    </li>
+    <li style={{ textAlign: "left" }}>
+      Take advantage of your auth provider's APIs with <code>cy.request</code>.
+    </li>
+    <li style={{ textAlign: "left" }}>"Trick" your application.</li>
+  </Appear>
+</ul>
+
+```notes
+- First off, auth is always hard. We know this, but it bears repeating.
+- My first piece of advice is _don't_ use your app's login page to sign in. It's slow and brittle, and some auth providers will have detection for browser automation that will break your tests.
+- Instead, take advantage of your auth provider's APIs with `cy.request`. Basically, `cy.request` allows you to hit external APIs to get things like session tokens and access tokens, which you can then dump into local storage or cookies.
+- If you really want to avoid your auth server, you can trick your app into thinking you're logged in by using `cy.server` and stubbing all of your endpoints with fixtures. Your tests will run extremely fast with this approach, but you'll also need to do a lot of work to get and maintain fixtures.
+```
+
+---
+
+### Take advantage of your auth provider's APIs with `cy.request`.
+
+![](/images/cypress_login.png)
+
+```notes
+- So on Tagomi we use the former strategy.
+- How many requests you'll need to make is based off your auth setup. In our case, we need to fetch some okta config secrets from AWS, make a request to get a session token, exchange that session token for access and id tokens, and then store those tokens in local storage.
+```
+
+---
+
+<div style={{ height: "100vh", width: "100vw", background: "#222" }}>
+  <img src="../images/OrderSubmission.gif" style={{ width: "100vw" }} />
+</div>
+
+```notes
+- As you can see, it's not a totally fool-proof solution.
+- It's still rather slow and requires the existence of a real user in the database and on the auth server.
+- But you do get the benefit of running true end-to-end tests and testing the full back to front of your app.
+```

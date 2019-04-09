@@ -1,0 +1,12 @@
+{
+  "name": "cypress",
+  "version": "0.1.0",
+  "description": "An mdx deck presentation on Cypress, an end-to-end testing framework.",
+  "main": "deck.mdx",
+  "author": "Parker Ziegler",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "start": "mdx-deck deck.mdx"
+  }
+}
